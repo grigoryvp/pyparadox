@@ -8,12 +8,15 @@
 # Main library code.
 
 import __builtin__, struct
+import threading
 from datetime import date, time, datetime
 
 MSG_ERR_FILE = "File is not a paradox data file"
 MSG_ERR_ENCRYPTION = "Encrypted files are not supported"
 MSG_ERR_FIELD_TYPE = "Unsupported field type 0x{:02x}"
 MSG_ERR_INCREMENTAL = "No autoincrement field for incremental load"
+
+class Shutdown( Exception ) : pass
 
 class CDatabase( object ) :
   def __init__( self ) :
@@ -207,7 +210,7 @@ class CReaderParadox( CReader ) :
     return ''
 
 ##i {start} If not |None|, defines first autoincrement index to load.
-def open( fp, mode = 'r', start = None ) :
+def open( fp, mode = 'r', start = None, shutdown = None ) :
   assert 'r' == mode
   with __builtin__.open( fp, mode ) as oFile :
     oReader = CReaderParadox( oFile.read() )
@@ -344,6 +347,10 @@ def open( fp, mode = 'r', start = None ) :
         oReader.Push( oReader.Offset() + nRecord * oDb.record_size )
         oRecord = CRecord()
         for i, oField in enumerate( oDb.fields ) :
+          ##  Converting big database from start may take long time, external
+          ##  shutdown can abort this process.
+          if shutdown.__class__ is threading.Event and shutdown.is_set() :
+            raise Shutdown()
           uVal = oReader.ReadField( oField )
           ##  Incremental mode, first field is autoincrement.
           if start != None and 0 == i :
