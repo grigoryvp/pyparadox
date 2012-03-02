@@ -349,7 +349,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
         for i, oField in enumerate( oDb.fields ) :
           ##  Converting big database from start may take long time, external
           ##  shutdown can abort this process.
-          if shutdown.__class__ is threading.Event and shutdown.is_set() :
+          if hasattr( shutdown, 'is_set' ) and shutdown.is_set() :
             raise Shutdown()
           uVal = oReader.ReadField( oField )
           ##  Incremental mode, first field is autoincrement.
