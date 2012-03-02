@@ -61,27 +61,56 @@ class CField( object ) :
   AUTOINCREMENT = 0x16
   BYTES         = 0x18
   ABOUT_TYPES = {
-    ALPHA :         "text",
-    DATE :          "date",
-    INT16 :         "int16",
-    INT32 :         "int32",
-    INT64 :         "int64",
-    LOGICAL :       "bool",
-    MEMO_BLOB :     "mblob",
-    BLOB :          "blob",
-    GRAPHICS_BLOB : "gblob",
-    TIME :          "time",
-    TIMESTAMP :     "datetime",
-    AUTOINCREMENT : "autoincrement",
-    BYTES :         "bytes" }
+    ALPHA :
+      { 'name'   : "text",
+        'sqlite' : 'TEXT' },
+    DATE :
+      { 'name'   : "date",
+        'sqlite' : 'TEXT' },
+    INT16 :
+      { 'name'   : "int16",
+        'sqlite' : 'INTEGER' },
+    INT32 :
+      { 'name'   : "int32",
+        'sqlite' : 'INTEGER' },
+    INT64 :
+      { 'name'   : "int64",
+        'sqlite' : 'INTEGER' },
+    LOGICAL :
+      { 'name'   : "bool",
+        'sqlite' : 'INTEGER' },
+    MEMO_BLOB :
+      { 'name'   : "mblob",
+        'sqlite' : 'BLOB' },
+    BLOB :
+      { 'name'   : "blob",
+        'sqlite' : 'BLOB' },
+    GRAPHICS_BLOB :
+      { 'name'   : "gblob",
+        'sqlite' : 'BLOB' },
+    TIME :
+      { 'name'   : "time",
+        'sqlite' : 'TEXT' },
+    TIMESTAMP :
+      { 'name'   : "datetime",
+        'sqlite' : 'TEXT' },
+    AUTOINCREMENT :
+      { 'name'   : "autoincrement",
+        'sqlite' : 'INTEGER PRIMARY KEY' },
+    BYTES :
+      { 'name'   : "bytes",
+        'sqlite' : 'BLOB'  }
+  }
   def __init__( self ) :
     self.type = None
     self.size = None
     self.name = None
   def TypeAsTxt( self ) :
-    return CField.ABOUT_TYPES[ self.type ]
+    return CField.ABOUT_TYPES[ self.type ][ 'name' ]
   def IsAutoincrement( self ) :
     return self.type == CField.AUTOINCREMENT
+  def ToSqliteType( self ) :
+    return CField.ABOUT_TYPES[ self.type ][ 'sqlite' ]
 
 class CRecord( object ) :
   def __init__( self ) :
