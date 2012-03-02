@@ -80,6 +80,8 @@ class CField( object ) :
     self.name = None
   def TypeAsTxt( self ) :
     return CField.ABOUT_TYPES[ self.type ]
+  def IsAutoincrement( self ) :
+    return self.type == CField.AUTOINCREMENT
 
 class CRecord( object ) :
   def __init__( self ) :
