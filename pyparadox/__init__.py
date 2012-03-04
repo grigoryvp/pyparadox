@@ -90,7 +90,7 @@ class CField( object ) :
         'sqlite' : 'BLOB' },
     TIME :
       { 'name'   : "time",
-        'sqlite' : 'INTEGER' },
+        'sqlite' : 'TEXT' },
     TIMESTAMP :
       { 'name'   : "datetime",
         'sqlite' : 'TEXT' },
