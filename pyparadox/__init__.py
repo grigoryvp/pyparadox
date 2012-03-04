@@ -196,7 +196,7 @@ class CReaderParadox( CReader ) :
     nTime = (self.ReadNumber( 'I' ) - 719163) * 86400 
     ##  Number of days since 01.01.0001
     try :
-      return date.fromtimestamp( nTime )
+      return date.fromtimestamp( nTime ).date()
     except ValueError :
       return date.max if nTime > 0 else date.min
   def ReadFieldInt16( self, i_oField ) :
