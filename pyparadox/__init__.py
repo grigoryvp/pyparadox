@@ -11,7 +11,7 @@ import __builtin__, struct
 import threading
 from datetime import date, time, datetime
 
-MSG_ERR_FILE = "File is not a paradox data file"
+MSG_ERR_FILE = "File \"{0}\" is not a paradox data file"
 MSG_ERR_ENCRYPTION = "Encrypted files are not supported"
 MSG_ERR_FIELD_TYPE = "Unsupported field type 0x{:02x}"
 MSG_ERR_INCREMENTAL = "No autoincrement field for incremental load"
@@ -252,10 +252,10 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   oDb.header_size = oReader.Read( '<H' )
   oDb.file_type = oReader.Read( '<B' )
   if oDb.file_type not in [ 0, 2 ] :
-    raise Exception( MSG_ERR_FILE )
+    raise Exception( MSG_ERR_FILE.format( fp ) )
   oDb.max_table_size = oReader.Read( '<B' )
   if oDb.max_table_size not in range( 1, 32 + 1 ) :
-    raise Exception( MSG_ERR_FILE )
+    raise Exception( MSG_ERR_FILE.format( fp ) )
   oDb.records_count = oReader.Read( '<I' )
   oReader.Read( '<H' ) # Next block.
   oReader.Read( '<H' ) # File blocks.
@@ -281,7 +281,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   ABOUT = { 0 : False, 1 : True }
   nData = oReader.Read( '<B' )
   if nData not in ABOUT :
-    raise Exception( MSG_ERR_FILE )
+    raise Exception( MSG_ERR_FILE.format( fp ) )
   oDb.write_protected = ABOUT[ nData ]
   oDb.version_common = oReader.Read( '<B' )
   oReader.Read( '<H' ) # Unknown.
@@ -306,7 +306,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   oDb.version_data = oReader.Read( '<H' )
   nData = oReader.Read( '<H' )
   if nData != oDb.version_data :
-    raise Exception( MSG_ERR_FILE )
+    raise Exception( MSG_ERR_FILE.format( fp ) )
   oReader.Read( '<I' ) # Unknown.
   oReader.Read( '<I' ) # Unknown.
   oReader.Read( '<H' ) # Unknown.
@@ -345,7 +345,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   for oField in oDb.fields :
     oField.name = oReader.ReadStr()
   if len( oDb.fields ) != oDb.fields_count :
-    raise Exception( MSG_ERR_FILE )
+    raise Exception( MSG_ERR_FILE.format( fp ) )
 
   oReader.ReadArray( oDb.fields_count * 2 ) # Field numbers.
   oDb.sort_order_txt = oReader.ReadStr()
@@ -362,7 +362,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   nBlocks = nRemaining // nBlockSize
   nOffsetStart = oReader.Offset()
   if 0 != nRemaining % nBlockSize :
-    raise Exception( MSG_ERR_FILE )
+    raise Exception( MSG_ERR_FILE.format( fp ) )
   ##  Read blocks from end so we can pick new autoincrement fields fast.
   for nBlock in range( nBlocks - 1, -1, -1 ) :
     oReader.Push( nOffsetStart + nBlock * nBlockSize )
@@ -393,7 +393,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
         oReader.Pop()
     oReader.Pop()
   if len( oDb.records ) != oDb.records_count :
-    raise Exception( MSG_ERR_FILE )
+    raise Exception( MSG_ERR_FILE.format( fp ) )
 
   return oDb
 
