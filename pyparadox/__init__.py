@@ -17,6 +17,10 @@ MSG_ERR_FIELD_TYPE = "Unsupported field type 0x{:02x}"
 MSG_ERR_INCREMENTAL = "No autoincrement field for incremental load"
 
 class Shutdown( Exception ) : pass
+##  Expected error.
+class Error( Exception, object ) :
+  def __init__( self, i_sMsg ) :
+    super( Error, self ).__init__( i_sMsg )
 
 class CDatabase( object ) :
   def __init__( self ) :
@@ -187,7 +191,7 @@ class CReaderParadox( CReader ) :
       CField.AUTOINCREMENT : self.ReadFieldAutoincrement,
       CField.BYTES :         self.ReadFieldBytes }
     if i_oField.type not in ABOUT :
-      raise Exception( MSG_ERR_FIELD_TYPE.format( i_oField.type ) )
+      raise Error( MSG_ERR_FIELD_TYPE.format( i_oField.type ) )
     return ABOUT[ i_oField.type ]( i_oField )
   def ReadFieldAlpha( self, i_oField ) :
     ##  Zero-padded text.
@@ -252,10 +256,10 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   oDb.header_size = oReader.Read( '<H' )
   oDb.file_type = oReader.Read( '<B' )
   if oDb.file_type not in [ 0, 2 ] :
-    raise Exception( MSG_ERR_FILE.format( fp ) )
+    raise Error( MSG_ERR_FILE.format( fp ) )
   oDb.max_table_size = oReader.Read( '<B' )
   if oDb.max_table_size not in range( 1, 32 + 1 ) :
-    raise Exception( MSG_ERR_FILE.format( fp ) )
+    raise Error( MSG_ERR_FILE.format( fp ) )
   oDb.records_count = oReader.Read( '<I' )
   oReader.Read( '<H' ) # Next block.
   oReader.Read( '<H' ) # File blocks.
@@ -281,18 +285,18 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   ABOUT = { 0 : False, 1 : True }
   nData = oReader.Read( '<B' )
   if nData not in ABOUT :
-    raise Exception( MSG_ERR_FILE.format( fp ) )
+    raise Error( MSG_ERR_FILE.format( fp ) )
   oDb.write_protected = ABOUT[ nData ]
   oDb.version_common = oReader.Read( '<B' )
   oReader.Read( '<H' ) # Unknown.
   oReader.Read( '<B' ) # Unknown.
   nAuxiliaryPassCount = oReader.Read( '<B' )
   if 0 != nAuxiliaryPassCount :
-    raise Exception( MSG_ERR_ENCRYPTION )
+    raise Error( MSG_ERR_ENCRYPTION )
   oReader.Read( '<H' ) # Unknown.
   nCryptInfoFieldPtr = oReader.Read( '<I' )
   if 0 != nCryptInfoFieldPtr :
-    raise Exception( MSG_ERR_ENCRYPTION )
+    raise Error( MSG_ERR_ENCRYPTION )
   oReader.Read( '<I' ) # * crypt info field end.
   oReader.Read( '<B' ) # Unknown.
   oDb.next_auto_inc = oReader.Read( '<I' )
@@ -306,7 +310,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   oDb.version_data = oReader.Read( '<H' )
   nData = oReader.Read( '<H' )
   if nData != oDb.version_data :
-    raise Exception( MSG_ERR_FILE.format( fp ) )
+    raise Error( MSG_ERR_FILE.format( fp ) )
   oReader.Read( '<I' ) # Unknown.
   oReader.Read( '<I' ) # Unknown.
   oReader.Read( '<H' ) # Unknown.
@@ -345,7 +349,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   for oField in oDb.fields :
     oField.name = oReader.ReadStr()
   if len( oDb.fields ) != oDb.fields_count :
-    raise Exception( MSG_ERR_FILE.format( fp ) )
+    raise Error( MSG_ERR_FILE.format( fp ) )
 
   oReader.ReadArray( oDb.fields_count * 2 ) # Field numbers.
   oDb.sort_order_txt = oReader.ReadStr()
@@ -354,7 +358,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   oReader.Push( oDb.header_size )
 
   if start != None and oDb.fields[ 0 ].type != CField.AUTOINCREMENT :
-    raise Exception( MSG_ERR_INCREMENTAL )
+    raise Error( MSG_ERR_INCREMENTAL )
 
   ##  Records.
   nRemaining = oReader.Size() - oReader.Offset()
@@ -362,7 +366,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
   nBlocks = nRemaining // nBlockSize
   nOffsetStart = oReader.Offset()
   if 0 != nRemaining % nBlockSize :
-    raise Exception( MSG_ERR_FILE.format( fp ) )
+    raise Error( MSG_ERR_FILE.format( fp ) )
   ##  Read blocks from end so we can pick new autoincrement fields fast.
   for nBlock in range( nBlocks - 1, -1, -1 ) :
     oReader.Push( nOffsetStart + nBlock * nBlockSize )
@@ -393,7 +397,7 @@ def open( fp, mode = 'r', start = None, shutdown = None ) :
         oReader.Pop()
     oReader.Pop()
   if len( oDb.records ) != oDb.records_count :
-    raise Exception( MSG_ERR_FILE.format( fp ) )
+    raise Error( MSG_ERR_FILE.format( fp ) )
 
   return oDb
 
