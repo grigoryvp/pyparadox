@@ -19,7 +19,7 @@ MSG_ERR_INCREMENTAL = "No autoincrement field for incremental load"
 class Shutdown( Exception ) : pass
 ##  Expected error.
 class Error( Exception, object ) :
-  def __init__( self, i_sMsg ) :
+  def __init__( self, i_sMsg = None ) :
     super( Error, self ).__init__( i_sMsg )
 
 class CDatabase( object ) :
@@ -139,6 +139,8 @@ class CReader( object ) :
     ABOUT = { '!' : 0, '<' : 0, 'B' : 1, 'h' : 2, 'H' : 2, 'I' : 4, 'f' : 4 }
     nLen = reduce( lambda x, y : x + y, [ ABOUT[ x ] for x in i_sFormat ] )
     sSplice = self.m_sData[ self.m_nOffset : self.m_nOffset + nLen ]
+    if len( sSplice ) < nLen :
+      raise Error()
     gItems = struct.unpack( i_sFormat, sSplice )
     if not dontmove :
       self.m_nOffset += nLen
