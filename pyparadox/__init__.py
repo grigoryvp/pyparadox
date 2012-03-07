@@ -247,7 +247,7 @@ class CReaderParadox( CReader ) :
     return ''
 
 ##i {start} If not |None|, defines first autoincrement index to load.
-def open( fp, mode = 'r', start = None, shutdown = None ) :
+def open( fp, mode = 'rb', start = None, shutdown = None ) :
   assert 'rb' == mode
   with __builtin__.open( fp, mode ) as oFile :
     oReader = CReaderParadox( oFile.read() )
