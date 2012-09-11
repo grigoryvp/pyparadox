@@ -4,5 +4,9 @@
 from distutils.core import setup
 import setuptools
 
-setup( name = 'pyparadox', version = '0.1.0', packages = [ 'pyparadox' ] )
+setup(
+  name = 'pyparadox',
+  version = '0.1.1',
+  packages = [ 'pyparadox_impl' ],
+  py_modules = [ 'pyparadox' ] )
 
