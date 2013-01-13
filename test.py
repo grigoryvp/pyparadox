@@ -1,32 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# pyparadox
-# Copyright 2011 Grigory Petrov
+# pyparadox test.
+# Copyright 2013 Grigory Petrov
 # See LICENSE for details.
-
-# Test.
 
 import pyparadox
 
+
 oDb = pyparadox.open( "test.db" )
-print( "record size: {}".format( oDb.record_size ) )
-print( "header size: {}".format( oDb.header_size ) )
-print( "file type: {}".format( oDb.file_type ) )
+print( "record size: {}".format( oDb.recordSize ) )
+print( "header size: {}".format( oDb.headerSize ) )
+print( "file type: {}".format( oDb.fileType ) )
 ABOUT = { 1 : "64m", 2 : "128M", 3 : "192M", 4 : "256M" }
-print( "max table size: {}".format( ABOUT[ oDb.max_table_size ] ) )
-print( "number of records: {}".format( oDb.records_count ) )
-print( "Sort order: {:x}".format( oDb.sort_order ) )
-print( "write protection: {}".format( oDb.write_protected ) )
-print( "Common version: {:x}".format( oDb.version_common ) )
-print( "Next auto increment: {}".format( oDb.next_auto_inc ) )
-print( "Data version: {:04x}".format( oDb.version_data ) )
+print( "max table size: {}".format( ABOUT[ oDb.maxTableSize ] ) )
+print( "number of records: {}".format( oDb.recordsCount ) )
+print( "Sort order: {:x}".format( oDb.sortOrder ) )
+print( "write protection: {}".format( oDb.writeProtected ) )
+print( "Common version: {:x}".format( oDb.versionCommon ) )
+print( "Next auto increment: {}".format( oDb.nextAutoInc ) )
+print( "Data version: {:04x}".format( oDb.versionData ) )
 print( "Codepage: {:04x}".format( oDb.codepage ) )
-print( "Table name: {}".format( oDb.table_name ) )
-print( "Sort order text: {}".format( oDb.sort_order_txt ) )
+print( "Table name: {}".format( oDb.tableName ) )
+print( "Sort order text: {}".format( oDb.sortOrderTxt ) )
 print( "Fields: " )
 for oField in oDb.fields :
-  print( "  {} ({})".format( oField.name, oField.TypeAsTxt() ) )
+  print( "  {} ({})".format( oField.name, oField.typeAsTxt() ) )
 print( "Records: " )
 for oRecord in oDb.records :
   print( u"  {}".format( oRecord ).encode( "utf-8" ) )
