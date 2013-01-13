@@ -41,10 +41,7 @@ setuptools.setup(
   license      = 'GPLv3',
   packages     = [ NAME_SHORT ],
   zip_safe     = True,
-  install_requires = [
-    ##  Simple WSGI server engine.
-    'cherrypy',
-  ],
+  install_requires = [],
   entry_points = {
     'console_scripts' : [
       '{0} = {0}:main'.format( NAME_SHORT ),
