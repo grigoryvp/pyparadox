@@ -12,7 +12,7 @@ oDb = pyparadox.open( "test.db" )
 print( "record size: {}".format( oDb.recordSize ) )
 print( "header size: {}".format( oDb.headerSize ) )
 print( "file type: {}".format( oDb.fileType ) )
-ABOUT = { 1 : "64m", 2 : "128M", 3 : "192M", 4 : "256M" }
+ABOUT = { 1: "64m", 2: "128M", 3: "192M", 4: "256M" }
 print( "max table size: {}".format( ABOUT[ oDb.maxTableSize ] ) )
 print( "number of records: {}".format( oDb.recordsCount ) )
 print( "Sort order: {:x}".format( oDb.sortOrder ) )
@@ -24,9 +24,9 @@ print( "Codepage: {:04x}".format( oDb.codepage ) )
 print( "Table name: {}".format( oDb.tableName ) )
 print( "Sort order text: {}".format( oDb.sortOrderTxt ) )
 print( "Fields: " )
-for oField in oDb.fields :
+for oField in oDb.fields:
   print( "  {} ({})".format( oField.name, oField.typeAsTxt() ) )
 print( "Records: " )
-for oRecord in oDb.records :
+for oRecord in oDb.records:
   print( u"  {}".format( oRecord ).encode( "utf-8" ) )
 
