@@ -6,9 +6,22 @@
 # See LICENSE for details.
 
 
-import __builtin__, struct
-import threading
+try:
+    import __builtin__
+    byte_to_int = ord
+    int_to_byte = chr
+    empty_bytes = ""
+    zero_byte = "\0"
+except ImportError:
+    import builtins
+    __builtin__ = builtins
+    byte_to_int = int
+    int_to_byte = lambda v: bytes([v])
+    empty_bytes = b""
+    zero_byte = b"\0"
+import struct
 from datetime import date, time, datetime
+from functools import reduce
 
 
 MSG_ERR_FILE = "File \"{0}\" is not a paradox data file"
@@ -204,22 +217,24 @@ class CReaderParadox( CReader ):
 
 
   def readStr( self ):
-    sStr = ""
+    sStr = empty_bytes
     while True:
       nChar = self.read( '<B' )
       if 0 == nChar:
         break
-      sStr += chr( nChar )
+      sStr += int_to_byte( nChar )
     ##  ASCII.
     return sStr
 
 
   def readNumber( self, s_format ):
     ABOUT_SIZE = { 'B': 1, 'h': 2, 'I': 4, 'i': 4, 'Q': 8, 'd': 8 }
-    sData = self.readArray( ABOUT_SIZE[ s_format ] )
+    size = ABOUT_SIZE[ s_format ]
+    sData = self.readArray( size )
+
     ##  High bit is set for positive numbers.
-    if ord( sData[ 0 ] ) & 0x80:
-      sData = chr( ord( sData[ 0 ] ) & (~ 0x80) ) + sData[ 1 : ]
+    if byte_to_int( sData[ 0 ] ) & 0x80:
+      sData = int_to_byte(byte_to_int(sData[0]) & (~ 0x80)) + sData[1:]
       return struct.unpack( '!{}'.format( s_format ), sData )[ 0 ]
     return - struct.unpack( '!{}'.format( s_format ), sData )[ 0 ]
 
@@ -246,7 +261,7 @@ class CReaderParadox( CReader ):
 
   def readFieldAlpha( self, o_field ):
     ##  Zero-padded text.
-    return self.readArray( o_field.size ).replace( '\0', '' )
+    return self.readArray( o_field.size ).replace( zero_byte, empty_bytes )
 
 
   def readFieldDate( self, o_field ):
@@ -408,12 +423,12 @@ def open( fp, mode = 'rb', start = None, shutdown = None ):
   oReader.readArray( oDb.fieldsCount * 4 ) # Field name pointers.
 
   ##  Table name as original file name with extension. Padded with zeroes.
-  sTableName = ""
+  sTableName = empty_bytes
   while True:
     nChar = oReader.read( '<B', f_dontmove = True )
     if 0 == nChar:
       break
-    sTableName += chr( oReader.read( '<B' ) )
+    sTableName += int_to_byte( oReader.read( '<B' ) )
   while True:
     nChar = oReader.read( '<B', f_dontmove = True )
     if 0 != nChar:
@@ -454,7 +469,7 @@ def open( fp, mode = 'rb', start = None, shutdown = None ):
     if nAddDataSize >= 0:
       nRecords = nAddDataSize / oDb.recordSize + 1
       ##  Read records in block from end so we pick newest first.
-      for nRecord in range( nRecords - 1, -1, -1 ):
+      for nRecord in range( int(nRecords) - 1, -1, -1 ):
         oReader.push( oReader.offset() + nRecord * oDb.recordSize )
         oRecord = CRecord()
         for i, oField in enumerate( oDb.fields ):
