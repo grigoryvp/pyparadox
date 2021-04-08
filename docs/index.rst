@@ -4,6 +4,12 @@ pyparadox
 
 Simple Paradox database reader
 
+.. toctree::
+  :hidden:
+
+  Home <self>
+  API <pyparadox>
+
 Why?
 ====
 
